@@ -38,13 +38,14 @@ formatter = logging.Formatter(
 handler.setFormatter(formatter)
 logger.addHandler(handler)
 
+
 def send_message(bot, message):
     """Функция отправки сообщения в чат телеграмма."""
     try:
         bot.send_message(TELEGRAM_CHAT_ID, message)
         logging.info('Cообщение в Telegram было отправлено')
     except Exception as error:
-        logging.error('Cбой при отправке сообщения в Telegram')
+        logging.error(f'Ошибка при обращении к API Telegram: {error}')
 
 
 def get_api_answer(current_timestamp):
@@ -101,7 +102,7 @@ def parse_status(homework):
 
 
 def check_tokens():
-    """Функция проверки доступности переменных окружения"""
+    """Функция проверки доступности переменных окружения."""
     tokens = {
         'practicum_token': PRACTICUM_TOKEN,
         'telegram_token': TELEGRAM_TOKEN,
