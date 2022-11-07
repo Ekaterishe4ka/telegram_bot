@@ -65,9 +65,9 @@ def get_api_answer(current_timestamp):
         raise SystemError(f'Ошибка при запросе к API: {error}')
     else:
         if response.status_code != HTTPStatus.OK:
-           raise exceptions.InvalidHttpStatus('Статус страницы не равен 200')
+            raise exceptions.InvalidHttpStatus('Статус страницы не равен 200')
         response_content = response.json()
-        return response_content 
+        return response_content
 
 
 def check_response(response):
@@ -78,26 +78,28 @@ def check_response(response):
     if not isinstance(homeworks, list):
         raise TypeError('Неверный тип входящих данных')
     if 'homeworks' not in response.keys():
-        raise KeyError('Ключ "homeworks" в ответе API Яндекс.Практикум отсутствует')
+        raise KeyError(
+            'Ключ "homeworks" в ответе API Яндекс.Практикум отсутствует')
     if 'current_date' not in response.keys():
-        raise KeyError('Ключ current_date в ответе API Яндекс.Практикум отсутствует')
+        raise KeyError(
+            'Ключ current_date в ответе API Яндекс.Практикум отсутствует')
     return homeworks
 
 
 def parse_status(homework):
     """Функция, проверяющая статус домашнего задания."""
     if not isinstance(homework, dict):
-        raise KeyError('Ошибка типа данных в homework') 
+        raise KeyError('Ошибка типа данных в homework')
     homework_name = homework['homework_name']
     if homework_name is None:
         raise KeyError('В ответе API нет ключа homework_name')
     homework_status = homework.get('status')
-    if homework_status is None: 
+    if homework_status is None:
         raise KeyError('В ответе API нет ключа homework_status')
     verdict = HOMEWORK_STATUSES.get(homework_status)
-    if verdict is None: 
+    if verdict is None:
         raise exceptions.UnknownHomeworkStatus('Такого статуса нет в словаре')
-    return f'Изменился статус проверки работы "{homework_name}". {verdict}' 
+    return f'Изменился статус проверки работы "{homework_name}". {verdict}'
 
 
 def check_tokens():
@@ -123,10 +125,10 @@ def main():
             logger.info(f'Получили список работ {homeworks}')
             if len(homeworks) > 0:
                 message = parse_status(homeworks[0])
-                if last_message!=message:
-                   last_message = message
-                   send_message(bot, last_message)
-                   logger.info('Изменений нет')
+                if last_message != message:
+                    last_message = message
+                    send_message(bot, last_message)
+                    logger.info('Изменений нет')
             current_timestamp = int(time.time())
         except Exception as error:
             message = f'Сбой в работе программы: {error}'
