@@ -1,3 +1,8 @@
+class SendMessageFailure(Exception):
+    """Не удалось отправить сообщение."""
+
+    pass
+
 class InvalidHttpStatus(Exception):
     """Статут ответа от API Яндекс.Практикума отличный от 200."""
 
@@ -8,3 +13,6 @@ class UnknownHomeworkStatus(Exception):
     """Неизвестный статус домашнего задания."""
 
     pass
+
+
+

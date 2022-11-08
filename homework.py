@@ -45,7 +45,7 @@ def send_message(bot, message):
         bot.send_message(TELEGRAM_CHAT_ID, message)
         logger.info('Начало отправки сообщения в Telegram')
     except telegram.error.TelegramError:
-        raise exceptions.MyException('При отправке сообщения произошла ошибка')
+        raise exceptions.SendMessageFailure('При отправке сообщения произошла ошибка')
     else:
         logger.info('Сообщение отправлено успешно')
 
@@ -54,29 +54,26 @@ def get_api_answer(current_timestamp):
     """Функция запроса к API Яндекс.Практикум."""
     timestamp = current_timestamp or int(time.time())
     params = {'from_date': timestamp}
-    response = requests.get(
-        ENDPOINT,
-        headers=HEADERS,
-        params=params
-    )
     try:
         response = requests.get(ENDPOINT, headers=HEADERS, params=params)
     except Exception as error:
-        raise SystemError(f'Ошибка при запросе к API: {error}')
+        raise ConnectionError(f'Ошибка при запросе к API: {ENDPOINT} не доступен')
     else:
         if response.status_code != HTTPStatus.OK:
-            raise exceptions.InvalidHttpStatus('Статус страницы не равен 200')
+            raise exceptions.InvalidHttpStatus(f'Статус страницы не 200 и равен: {response.status_code}')
         response_content = response.json()
         return response_content
 
 
 def check_response(response):
     """Функция проверки корректности ответа API Яндекс.Практикум."""
+    if not isinstance(response, dict):
+        raise TypeError('Ответ API не словарь')
     homeworks = response['homeworks']
     if not homeworks:
-        raise LookupError('Отсутсвует статус homeworks')
+        raise KeyError('Отсутсвует статус homeworks')
     if not isinstance(homeworks, list):
-        raise TypeError('Неверный тип входящих данных')
+        raise TypeError('Неверный тип данных у homeworks')
     if 'homeworks' not in response.keys():
         raise KeyError(
             'Ключ "homeworks" в ответе API Яндекс.Практикум отсутствует')
@@ -89,16 +86,16 @@ def check_response(response):
 def parse_status(homework):
     """Функция, проверяющая статус домашнего задания."""
     if not isinstance(homework, dict):
-        raise KeyError('Ошибка типа данных в homework')
-    homework_name = homework['homework_name']
-    if homework_name is None:
+        raise KeyError('Ошибка типа данных: homework - не словарь')
+    if 'homework_name' not in homework:
         raise KeyError('В ответе API нет ключа homework_name')
-    homework_status = homework.get('status')
-    if homework_status is None:
+    if 'status' not in homework: 
         raise KeyError('В ответе API нет ключа homework_status')
+    homework_name = homework['homework_name']
+    homework_status = homework.get('status')
     verdict = HOMEWORK_STATUSES.get(homework_status)
     if verdict is None:
-        raise exceptions.UnknownHomeworkStatus('Такого статуса нет в словаре')
+        raise exceptions.UnknownHomeworkStatus('f Cтатуса {homework_status} нет в словаре')
     return f'Изменился статус проверки работы "{homework_name}". {verdict}'
 
 
@@ -110,12 +107,12 @@ def check_tokens():
 def main():
     """Основная логика работы бота."""
     logger.info('Вы запустили Бота')
-    bot = telegram.Bot(token=TELEGRAM_TOKEN)
-    current_timestamp = int(time.time())
     # проверка обязательных переменных окружения
     if not check_tokens():
         logger.critical('Обязательные переменные окружения отсутствуют.')
-        sys.exit()
+        return None
+    bot = telegram.Bot(token=TELEGRAM_TOKEN)
+    current_timestamp = int(time.time())
     last_message = ''
     # Проверка статуса домашней работы с определенной переодичностью
     while True:
@@ -128,10 +125,10 @@ def main():
                 if last_message != message:
                     last_message = message
                     send_message(bot, last_message)
-                    logger.info('Изменений нет')
             current_timestamp = int(time.time())
         except Exception as error:
             message = f'Сбой в работе программы: {error}'
+            send_message(bot, message)
             logger.error(message)
         else:
             logger.error('Сбой, ошибка не найдена')
