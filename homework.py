@@ -45,7 +45,8 @@ def send_message(bot, message):
         bot.send_message(TELEGRAM_CHAT_ID, message)
         logger.info('Начало отправки сообщения в Telegram')
     except telegram.error.TelegramError:
-        raise exceptions.SendMessageFailure('При отправке сообщения произошла ошибка')
+        raise exceptions.SendMessageFailure(
+            'При отправке сообщения произошла ошибка')
     else:
         logger.info('Сообщение отправлено успешно')
 
@@ -57,10 +58,12 @@ def get_api_answer(current_timestamp):
     try:
         response = requests.get(ENDPOINT, headers=HEADERS, params=params)
     except Exception as error:
-        raise ConnectionError(f'Ошибка при запросе к API: {ENDPOINT} не доступен')
+        raise exceptions.UnableAccessAPI(
+            f'Ошибка при запросе к API: {ENDPOINT} не доступен')
     else:
         if response.status_code != HTTPStatus.OK:
-            raise exceptions.InvalidHttpStatus(f'Статус страницы не 200 и равен: {response.status_code}')
+            raise exceptions.InvalidHttpStatus(
+                f'Статус страницы не 200 и равен: {response.status_code}')
         response_content = response.json()
         return response_content
 
@@ -89,13 +92,14 @@ def parse_status(homework):
         raise KeyError('Ошибка типа данных: homework - не словарь')
     if 'homework_name' not in homework:
         raise KeyError('В ответе API нет ключа homework_name')
-    if 'status' not in homework: 
+    if 'status' not in homework:
         raise KeyError('В ответе API нет ключа homework_status')
     homework_name = homework['homework_name']
     homework_status = homework.get('status')
     verdict = HOMEWORK_STATUSES.get(homework_status)
     if verdict is None:
-        raise exceptions.UnknownHomeworkStatus('f Cтатуса {homework_status} нет в словаре')
+        raise exceptions.UnknownHomeworkStatus(
+            'f Cтатуса {homework_status} нет в словаре')
     return f'Изменился статус проверки работы "{homework_name}". {verdict}'
 
 
