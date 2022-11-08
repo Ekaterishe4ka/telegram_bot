@@ -59,7 +59,7 @@ def get_api_answer(current_timestamp):
         response = requests.get(ENDPOINT, headers=HEADERS, params=params)
     except Exception as error:
         raise exceptions.UnableAccessAPI(
-            f'Ошибка при запросе к API: {ENDPOINT} не доступен')
+            f'ENDPOINT не доступен: {error}')
     else:
         if response.status_code != HTTPStatus.OK:
             raise exceptions.InvalidHttpStatus(
