@@ -58,10 +58,11 @@ def get_api_answer(current_timestamp):
     try:
         response = requests.get(ENDPOINT, headers=HEADERS, params=params)
     except Exception as error:
-        raise exceptions.UnableAccessAPI(f'Ошибка доступа {error}. '
-                              f'Проверить API: {ENDPOINT}, '
-                              f'Токен авторизации: {HEADERS}, '
-                              f'Запрос с момента времени: {params}')
+        raise exceptions.UnableAccessAPI(
+            f'Ошибка доступа {error}. '
+            f'Проверить API: {ENDPOINT}, '
+            f'Токен авторизации: {HEADERS}, '
+            f'Запрос с момента времени: {params}')
     else:
         if response.status_code != HTTPStatus.OK:
             raise exceptions.InvalidHttpStatus(
@@ -78,7 +79,8 @@ def check_response(response):
     if not isinstance(response, dict):
         raise TypeError('Ответ API не словарь')
     if 'homeworks' not in response:
-        raise KeyError('Ключ "homeworks" в ответе API Яндекс.Практикум отсутствует')
+        raise KeyError(
+            'Ключ "homeworks" в ответе API Яндекс.Практикум отсутствует')
     homeworks = response['homeworks']
     if not homeworks:
         raise KeyError('Отсутствует статус homeworks')
