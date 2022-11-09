@@ -58,11 +58,16 @@ def get_api_answer(current_timestamp):
     try:
         response = requests.get(ENDPOINT, headers=HEADERS, params=params)
     except Exception as error:
-        raise exceptions.UnableAccessAPI(
-            f'ENDPOINT не доступен: {error}')
+        raise exceptions.UnableAccessAPI(f'Ошибка доступа {error}. '
+                              f'Проверить API: {ENDPOINT}, '
+                              f'Токен авторизации: {HEADERS}, '
+                              f'Запрос с момента времени: {params}')
     else:
         if response.status_code != HTTPStatus.OK:
             raise exceptions.InvalidHttpStatus(
+                f'Ошибка ответа сервера. Проверить API: {ENDPOINT}, '
+                f'Токен авторизации: {HEADERS}, '
+                f'Запрос с момента времени: {params},'
                 f'Статус страницы не 200 и равен: {response.status_code}')
         response_content = response.json()
         return response_content
@@ -72,15 +77,14 @@ def check_response(response):
     """Функция проверки корректности ответа API Яндекс.Практикум."""
     if not isinstance(response, dict):
         raise TypeError('Ответ API не словарь')
+    if 'homeworks' not in response:
+        raise KeyError('Ключ "homeworks" в ответе API Яндекс.Практикум отсутствует')
     homeworks = response['homeworks']
     if not homeworks:
-        raise KeyError('Отсутсвует статус homeworks')
+        raise KeyError('Отсутствует статус homeworks')
     if not isinstance(homeworks, list):
         raise TypeError('Неверный тип данных у homeworks')
-    if 'homeworks' not in response.keys():
-        raise KeyError(
-            'Ключ "homeworks" в ответе API Яндекс.Практикум отсутствует')
-    if 'current_date' not in response.keys():
+    if 'current_date' not in response:
         raise KeyError(
             'Ключ current_date в ответе API Яндекс.Практикум отсутствует')
     return homeworks
@@ -130,12 +134,12 @@ def main():
                     last_message = message
                     send_message(bot, last_message)
             current_timestamp = int(time.time())
+        except exceptions.SendMessageFailure as error:
+            logger.error(f'Боту не удалось отправить сообщение: {error}')
         except Exception as error:
             message = f'Сбой в работе программы: {error}'
-            send_message(bot, message)
             logger.error(message)
-        else:
-            logger.error('Сбой, ошибка не найдена')
+            send_message(bot, message)
         finally:
             time.sleep(RETRY_TIME)
 
