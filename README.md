@@ -1,4 +1,4 @@
-# Telegram bot
+# Telegram_bot
 ## Описание:
 Проект сервиса telegram_bot, работающий с API сервиса Практикум.Домашка.
 
@@ -19,31 +19,48 @@
 
 ## Запуск проекта:
 Клонировать репозиторий и перейти в него в командной строке:
+
 ```
 git clone https://github.com/Ekaterishe4ka/homework_bot.git
 cd telegram_bot
 ```
+
 Cоздать и активировать виртуальное окружение:
+
 ```
 python3 -m venv env
-source env/bin/activate (Mac OS, Linux) или source venv/Scripts/activate (Win10)
 ```
+
+```
+source env/bin/activate
+```
+
 Установить зависимости из файла requirements.txt:
+
 ```
 python3 -m pip install --upgrade pip
+```
+
+```
 pip install -r requirements.txt
 ```
+
 Создать файл виртуального окружения .env в корневой директории проекта:
+
 ```
 touch .env
 ```
+
 В нём указать свои ключи для токен API сервиса Практикум.Домашка и Telegram:
+
 ```
 - PRAKTIKUM_TOKEN =
 - TELEGRAM_TOKEN =
 - TELEGRAM_CHAT_ID =
 ```
+
 Запустить проект на локальной машине:
+
 ```
 python homework.py
 ```
