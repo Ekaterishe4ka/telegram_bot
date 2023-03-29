@@ -20,7 +20,7 @@
 ## Запуск проекта:
 Клонировать репозиторий и перейти в него в командной строке:
 ```
-git clone https://github.com/Seniacat/telegram_bot.git
+git clone https://github.com/Ekaterishe4ka/homework_bot.git
 cd telegram_bot
 ```
 Cоздать и активировать виртуальное окружение:
@@ -37,7 +37,7 @@ pip install -r requirements.txt
 ```
 touch .env
 ```
-В нём указать свои ключи для окен API сервиса Практикум.Домашка и Telegram:
+В нём указать свои ключи для токен API сервиса Практикум.Домашка и Telegram:
 ```
 - PRAKTIKUM_TOKEN =
 - TELEGRAM_TOKEN =
